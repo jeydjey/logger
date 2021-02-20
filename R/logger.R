@@ -4,9 +4,6 @@ Logger <- R6::R6Class("Logger",
       stopifnot(is.character(file), length(file)==1)
       private$.file <- file
     },
-    finalize = function() {
-      unlink(private$.con)
-    },
     add = function(log_lvl, log_msg, ..., echo = T) {
       dots <- list(...)
       if (any(unlist(lapply(dots, length)) > 1)) 
@@ -27,8 +24,7 @@ Logger <- R6::R6Class("Logger",
       self$add("err", log_msg, ..., echo = echo)
     },
     return_log =  function() {
-      df <- private$.stream_in()
-      return(df)
+      private$.stream_in()
     }
   ),
   private = list(
@@ -85,7 +81,9 @@ Logger <- R6::R6Class("Logger",
       if(echo) cat(val)
     },
     .stream_in = function() {
-      jsonlite::stream_in(private$.con, verbose = F)
+      val_in <- readLines(private$.file)
+      val_in <- lapply(val_in, jsonlite::fromJSON)
+      dplyr::bind_rows(val_in)
     }
   ),
   active = list(
