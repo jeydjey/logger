@@ -9,8 +9,8 @@ Logger <- R6::R6Class("Logger",
       if (any(unlist(lapply(dots, length)) > 1)) 
         base::warning("Each custom log field should be of length one, or else the log entry will be shortened to max length of 400 characters")
       if (length(log_msg) > 1)
-        log_msg <- lapply(log_msg, private$sanitize)
-      dots <- lapply(dots, private$sanitize)
+        log_msg <- lapply(log_msg, private$.sanitize)
+      dots <- lapply(dots, private$.sanitize)
       log_df <- data.frame(timestamp = Sys.time(), log_lvl = log_lvl, log_msg = as.character(log_msg), dots, stringsAsFactors = F)
       private$.stream_out(log_df, echo = echo)
     },
@@ -24,7 +24,8 @@ Logger <- R6::R6Class("Logger",
       self$add("err", log_msg, ..., echo = echo)
     },
     return_log =  function() {
-      private$.stream_in()
+      dplyr::mutate(private$.stream_in(),
+                    dplyr::across(where(is.character), .fns = ~private$.sanitize_(.x, T)))
     }
   ),
   private = list(
@@ -38,7 +39,7 @@ Logger <- R6::R6Class("Logger",
                       `\r` = "__CR__", 
                       `\n` = "__LF__"),
     .cst_sanitizer = NULL,
-    sanitize = function(text, desanitize = F) {
+    .sanitize = function(text) {
       
       if(is.list(text)) {
         if(length(text)>1) {
@@ -58,6 +59,16 @@ Logger <- R6::R6Class("Logger",
       string <- paste(string, collapse = "\n")
       if(stringi::stri_length(string)>400) 
         string <- stringi::stri_sub(string, to = 400)
+      string <- private$.sanitize_(string, F)
+      if(is.list(text) && length(text)==1) {
+        text[[1]] <- string
+      } else { 
+        text <- string
+      }
+      
+      return(text)
+    },
+    .sanitize_ = function(string, desanitize = F) {
       sanitizer <- if(is.null(private$.cst_sanitizer)) private$.sanitizer else private$.cst_sanitizer
       for(k in names(sanitizer)) {
         if (!desanitize) {
@@ -67,13 +78,7 @@ Logger <- R6::R6Class("Logger",
           string <- gsub(sanitizer[k], k, string)
         }
       }
-      if(is.list(text) && length(text)==1) {
-        text[[1]] <- string
-      } else { 
-        text <- string
-      }
-      
-      return(text)
+      string
     },
     .stream_out = function(df, echo = T) {
       val <- jsonlite:::asJSON(df, collapse = F)
