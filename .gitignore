@@ -39,3 +39,4 @@ vignettes/*.pdf
 .Renviron
 
 *.log
+*.Rd2pdf19620
