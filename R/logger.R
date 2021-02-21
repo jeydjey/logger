@@ -1,35 +1,25 @@
 #' Class to provide logging capabilities
 #'
-#' @docType class
-#' @importFrom R6 R6Class
-#' @export
-#' @keywords logger
-#' @return Object of \code{\link{R6Class}} with methods for logging events to a log file.
-#' @format \code{\link{R6Class}} object.
-#' @examples
-#' my_log <- logger$new("log1.log")
-#' my_log$info("This is an information")
-#' @field file stores the file path
-#' @field custom_sanitizer stores the customer sanitizer list which cleanes logging strings for ndjson format.
-#' @field default_sanitizer stores the default sanitizer list which cleanes logging strings for ndjson format.
-#' #' @section Methods:
-#' \describe{
-#'   \item{\code{new(file)}}{This method is used to create object of this class with \code{file} as path of the logging object it writes to.}
-#'
-#'   \item{\code{add(log_lvl, log_msg, ..., echo = T)}}{This method adds a logging entry to the logfile with wichever \code{log_lvl} defined. \code{...} can be filled with custom named fields to log}
-#'   \item{\code{warn(log_msg, ..., echo = T)}}{This method adds a logging entry to the logfile with "warn" as defined \code{log_lvl}.}
-#'   \item{\code{info(log_msg, ..., echo = T)}}{This method adds a logging entry to the logfile with "info" as defined \code{log_lvl}.}
-#'   \item{\code{err(log_msg, ..., echo = T)}}{This method adds a logging entry to the logfile with "err" as defined \code{log_lvl}.}
-#'   \item{\code{return_log()}}{This method returns the log in the form of a tibble.}
-#'   \item{\code{file(value)}}{This method sets a new path for the logging file.}
-#'   \item{\code{custom_sanitizer(value, add = T)}}{This method adds or replaces custom sanitizer fields.}
 #'   
 logger <- R6::R6Class("logger", 
   public = list(
+    #' @description initialize a new logger with \code{logger$new("file_path")}
+    #' @param file file path to log file that already exists or should be created
+    #' @examples 
+    #' ##create a new log
+    #' log1 <- logger$new("log1.log")
     initialize = function(file) {
       stopifnot(is.character(file), length(file)==1)
       private$.file <- file
     },
+    #' @description add a log entry to the logging file
+    #' @param log_lvl character string for the log level to record the log entry for
+    #' @param log_msg log message to record
+    #' @param ... custom named values to record in the log
+    #' @param echo Overriding echo = T argument
+    #' @examples
+    #' ## add a log record
+    #' log1$add(log_lvl = "debug", log_msg = "some information")
     add = function(log_lvl, log_msg, ..., echo = T) {
       #add a logging entry with sanitized character strings for ndjson-format
       dots <- list(...)
@@ -41,18 +31,31 @@ logger <- R6::R6Class("logger",
       log_df <- data.frame(timestamp = Sys.time(), log_lvl = log_lvl, log_msg = as.character(log_msg), dots, stringsAsFactors = F)
       private$.stream_out(log_df, echo = echo)
     },
+    #' @description add a log entry with "warn" as the \code{log_lvl}
+    #' @param log_msg log message to record
+    #' @param ... custom named values to record in the log
+    #' @param echo Overriding echo = T argument
     warn = function(log_msg, ..., echo = T) {
       #add a logging entry of type 'warn'
       self$add("warn", log_msg, ..., echo = echo)
     },
+    #' @description add a log entry with "info" as the \code{log_lvl}
+    #' @param log_msg log message to record
+    #' @param ... custom named values to record in the log
+    #' @param echo Overriding echo = T argument
     info = function(log_msg, ..., echo = T) {
       #add a logging entry of type 'info'
       self$add("info", log_msg, ..., echo = echo)
     },
+    #' @description add a log entry with "err" as the \code{log_lvl}
+    #' @param log_msg log message to record
+    #' @param ... custom named values to record in the log
+    #' @param echo Overriding echo = T argument
     err = function(log_msg, ..., echo = T) {
       #add a logging entry of type 'err'
       self$add("err", log_msg, ..., echo = echo)
     },
+    #' @description return the log as a tibble
     return_log =  function() {
       #returns the written log desanitized and as a tibble
       dplyr::mutate(private$.stream_in(),
@@ -126,6 +129,7 @@ logger <- R6::R6Class("logger",
     }
   ),
   active = list(
+    #' @field file Set or get the file path of the logger
     file = function(value) {
       #return path or set new path
       if(missing(value)) {
@@ -137,6 +141,7 @@ logger <- R6::R6Class("logger",
         print(paste0("Location of logger file changed from '", old.file, "' to '", value, "'."))
       }
     },
+    #' @field custom_sanitizer get, replace or add custom sanitizer rules to the default sanitizer
     custom_sanitizer = function(value, add = T) {
       #add or replace custom sanitizer entries to the default sanitizer fields
       if(missing(value)) {
@@ -149,6 +154,7 @@ logger <- R6::R6Class("logger",
         }
       }
     },
+    #' @field default_sanitizer get the default sanitizer rules
     default_sanitizer = function(value) {
       #return the default sanitizer
       if(missing(value)) {
