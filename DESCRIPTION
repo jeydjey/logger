@@ -1,16 +1,27 @@
-Package: ac.logger
+Package: logger
 Type: Package
-Title: ac.logger provides logging functionalities.
-Version: 0.1.0
-Author: Joachim Janiak
-Maintainer: Joachim Janiak <joachim.janiak@gmail.com>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
-License: What license is it under?
+Title: Logger implemented as an R6Class.
+Version: 0.2.0
+Authors@R: 
+  person(given = "Joachim", 
+         family = "Janiak",
+         role = c("cre", "aut"),
+         email = "joachim.janiak@gmail.com")
+Description: With the logger it is possible to run multiple loggers in the same environment. Highly influenced by the loggit package,
+   but improved upon to support multiple logs in the same process.
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Depends: R (>= 4.0.0)
 Imports:
   jsonlite,
   stringi,
-  dplyr
-  
+  dplyr (>= 1.0.0)
+Suggests:
+  knitr (>= 1.19),
+  rmarkdown (>= 1.8),
+  testthat (>= 2.0.0)
+URL: https://github.com/jeydjey/logger
+BugReports: https://github.com/jeydjey/logger/issues
+RoxygenNote: 7.1.1
+Roxygen: list(markdown = TRUE)
