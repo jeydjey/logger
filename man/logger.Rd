@@ -15,7 +15,8 @@ Class to provide logging capabilities
 ## ------------------------------------------------
 
 ##create a new log
-log1 <- logger$new("log1.log")
+log1 <- logger$new()
+log2 <- logger$new("log1.log")
 
 ## ------------------------------------------------
 ## Method `logger$add`
@@ -53,20 +54,21 @@ log1$add(log_lvl = "debug", log_msg = "some information")
 \subsection{Method \code{new()}}{
 initialize a new logger with \code{logger$new("file_path")}
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{logger$new(file)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{logger$new(file = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{file}}{file path to log file that already exists or should be created}
+\item{\code{file}}{file path to log file that already exists or should be created (optional)}
 }
 \if{html}{\out{</div>}}
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
 \preformatted{##create a new log
-log1 <- logger$new("log1.log")
+log1 <- logger$new()
+log2 <- logger$new("log1.log")
 }
 \if{html}{\out{</div>}}
 

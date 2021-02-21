@@ -4,13 +4,16 @@
 logger <- R6::R6Class("logger", 
   public = list(
     #' @description initialize a new logger with \code{logger$new("file_path")}
-    #' @param file file path to log file that already exists or should be created
+    #' @param file file path to log file that already exists or should be created (optional)
     #' @examples 
     #' ##create a new log
-    #' log1 <- logger$new("log1.log")
-    initialize = function(file) {
-      stopifnot(is.character(file), length(file)==1)
-      private$.file <- file
+    #' log1 <- logger$new()
+    #' log2 <- logger$new("log1.log")
+    initialize = function(file = NULL) {
+      if(!is.null(file)) {
+        stopifnot(is.character(file), length(file)==1)
+        private$.file <- file
+      }
     },
     #' @description add a log entry to the logging file
     #' @param log_lvl character string for the log level to record the log entry for
@@ -58,6 +61,7 @@ logger <- R6::R6Class("logger",
     #' @description return the log as a tibble
     return_log =  function() {
       #returns the written log desanitized and as a tibble
+      if(is.null(private$.file)) stop("log file not defined.", call. = F)
       dplyr::mutate(private$.stream_in(),
                     dplyr::across(where(is.character), .fns = ~private$.sanitize_(.x, T)))
     }
@@ -118,14 +122,17 @@ logger <- R6::R6Class("logger",
     .stream_out = function(df, echo = T) {
       #write to file
       val <- jsonlite:::asJSON(df, collapse = F)
-      write(val, file = private$.file, append = T)
+      if(!is.null(private$.file))
+        write(val, file = private$.file, append = T)
       if(echo) cat(val)
     },
     .stream_in = function() {
       #read in file
-      val_in <- readLines(private$.file)
-      val_in <- lapply(val_in, jsonlite::fromJSON)
-      dplyr::bind_rows(val_in)
+      if(!is.null(private$.file)) {
+        val_in <- readLines(private$.file)
+        val_in <- lapply(val_in, jsonlite::fromJSON)
+        dplyr::bind_rows(val_in)
+      }
     }
   ),
   active = list(
