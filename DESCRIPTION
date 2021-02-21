@@ -1,7 +1,7 @@
 Package: logger
 Type: Package
 Title: Logger implemented as an R6Class.
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
   person(given = "Joachim", 
          family = "Janiak",
@@ -14,6 +14,7 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 4.0.0)
 Imports:
+  R6,
   jsonlite,
   stringi,
   dplyr (>= 1.0.0)
