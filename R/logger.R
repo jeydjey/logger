@@ -31,8 +31,12 @@ logger <- R6::R6Class("logger",
       if (length(log_msg) > 1)
         log_msg <- lapply(log_msg, private$.sanitize)
       dots <- lapply(dots, private$.sanitize)
-      log_df <- data.frame(timestamp = Sys.time(), log_lvl = log_lvl, log_msg = as.character(log_msg), dots, stringsAsFactors = F)
-      private$.stream_out(log_df, echo = echo)
+      if(length(dots)>0) {
+        log_df <- data.frame(timestamp = Sys.time(), log_lvl = log_lvl, log_msg = as.character(log_msg), dots, stringsAsFactors = F)
+      } else {
+        log_df <- data.frame(timestamp = Sys.time(), log_lvl = log_lvl, log_msg = as.character(log_msg), stringsAsFactors = F)
+      }
+        private$.stream_out(log_df, echo = echo)
     },
     #' @description add a log entry with "warn" as the \code{log_lvl}
     #' @param log_msg log message to record
