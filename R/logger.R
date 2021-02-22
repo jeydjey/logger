@@ -128,7 +128,7 @@ logger <- R6::R6Class("logger",
       val <- jsonlite:::asJSON(df, collapse = F)
       if(!is.null(private$.file))
         write(val, file = private$.file, append = T)
-      if(echo) cat(val)
+      if(echo) cat(val, "\n")
     },
     .stream_in = function() {
       #read in file

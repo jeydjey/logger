@@ -1,7 +1,7 @@
 Package: logger
 Type: Package
 Title: Logger implemented as an R6Class.
-Version: 0.3.1
+Version: 0.3.2
 Authors@R: 
   person(given = "Joachim", 
          family = "Janiak",
